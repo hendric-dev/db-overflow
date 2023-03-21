@@ -10,12 +10,14 @@ async fn main() -> Result<(), sqlx::Error> {
   dotenv().ok();
 
   let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
+  let quantity = str::parse::<i32>(&env::var("QUANTITY").expect("Failed to get QUANTITY environment variable"))
+    .expect("QUANTITY environment variable is not a number");
   let table = env::var("TABLE").expect("Failed to get TABLE environment variable");
 
   let mut connection = database::connect().await?;
   let statement = format!("COPY {table} FROM STDIN WITH (DELIMITER '{delimiter}', NULL 'NULL')");
   let mut stream = connection.copy_in_raw(&statement).await?;
-  events::generate(&mut stream).await?;
+  events::generate(&mut stream, quantity).await?;
   stream.finish().await?;
 
   Ok(())

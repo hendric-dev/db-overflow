@@ -33,10 +33,10 @@ impl Event {
   }
 }
 
-pub async fn generate(stream: &mut PgCopyIn<&mut PgConnection>) -> Result<(), sqlx::Error> {
+pub async fn generate(stream: &mut PgCopyIn<&mut PgConnection>, quantity: i32) -> Result<(), sqlx::Error> {
   let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
 
-  for _ in 1..=100 {
+  for _ in 1..=quantity {
     stream.send(Event::default().to_csv(&delimiter).as_bytes()).await?;
     stream.send("\n".as_bytes()).await?;
   }
