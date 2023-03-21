@@ -1,0 +1,17 @@
+condense_wildcard_suffixes = true
+comment_width = 120
+error_on_line_overflow = true
+error_on_unformatted = true
+fn_single_line = false
+format_strings = true
+imports_layout = "HorizontalVertical"
+match_arm_blocks = false
+max_width = 120
+normalize_comments = true
+reorder_impl_items = true
+tab_spaces = 2
+use_field_init_shorthand = true
+use_small_heuristics = "Max"
+use_try_shorthand = true
+where_single_line = true
+wrap_comments = true
