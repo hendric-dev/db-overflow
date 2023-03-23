@@ -5,19 +5,25 @@
       "type": "uuid"
     },
     {
-      "type": "uuid"
+      "type": "text"
     },
     {
-      "type": "uuid"
+      "type": "character varying"
     },
     {
-      "type": "uuid"
+      "type": "integer"
     },
     {
-      "type": "timestamp"
+      "type": "date"
     },
     {
-      "value": "{}"
+      "type": "timestamp without time zone"
+    },
+    {
+      "type": "boolean"
+    },
+    {
+      "type": "jsonb"
     }
   ]
 }
