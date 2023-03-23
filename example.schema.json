@@ -1,0 +1,23 @@
+{
+  "name": "events",
+  "columns": [
+    {
+      "type": "uuid"
+    },
+    {
+      "type": "uuid"
+    },
+    {
+      "type": "uuid"
+    },
+    {
+      "type": "uuid"
+    },
+    {
+      "type": "timestamp"
+    },
+    {
+      "value": "{}"
+    }
+  ]
+}

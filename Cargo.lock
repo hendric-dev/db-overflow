@@ -143,6 +143,8 @@ name = "db-overflow"
 version = "0.1.0"
 dependencies = [
  "dotenvy",
+ "serde",
+ "serde_json",
  "sqlx",
  "tokio",
  "uuid",
