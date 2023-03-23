@@ -18,7 +18,7 @@ async fn main() -> Result<(), sqlx::Error> {
     .expect("QUANTITY environment variable is not a number");
 
   let mut connection = database::connect().await?;
-  let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{delimiter}', NULL 'NULL')", schema.name);
+  let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{delimiter}', NULL 'NULL')", schema.table);
   let mut stream = connection.copy_in_raw(&statement).await?;
 
   schema.generate(&mut stream, quantity).await?;

@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
 pub struct TableSchema {
-  pub name: String,
+  pub table: String,
   pub columns: Vec<Column>,
 }
 
