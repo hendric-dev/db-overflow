@@ -1,22 +1,19 @@
+mod column;
+
+use column::{Column, ColumnType};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use serde::Deserialize;
 use sqlx::postgres::{PgConnection, PgCopyIn};
 use std::env;
 use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
-pub struct TableSchema {
+pub struct Schema {
   pub table: String,
   pub columns: Vec<Column>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Column {
-  #[serde(rename = "type")]
-  pub kind: Option<String>,
-  pub value: Option<String>,
-}
-
-impl TableSchema {
+impl Schema {
   pub async fn generate(&self, stream: &mut PgCopyIn<&mut PgConnection>, quantity: i32) -> Result<(), sqlx::Error> {
     let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
 
@@ -36,18 +33,23 @@ impl TableSchema {
         if column.value.is_some() {
           column.value.clone().unwrap()
         } else {
-          self.generate_from_kind(&column.kind.clone().unwrap())
+          self.generate_from_kind(column.kind.as_ref().unwrap())
         }
       })
       .collect::<Vec<String>>()
       .join(delimiter)
   }
 
-  fn generate_from_kind(&self, kind: &str) -> String {
+  fn generate_from_kind(&self, kind: &ColumnType) -> String {
     match kind {
-      "timestamp" => String::from("now()"),
-      "uuid" => Uuid::new_v4().to_string(),
-      _ => String::from(""),
+      ColumnType::Boolean => thread_rng().gen_range(0..=1).to_string(),
+      ColumnType::Character => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
+      ColumnType::Date => String::from("now()"),
+      ColumnType::Integer => i16::abs(thread_rng().gen::<i16>()).to_string(),
+      ColumnType::Jsonb => String::from("{}"),
+      ColumnType::Text => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
+      ColumnType::Timestamp => String::from("now()"),
+      ColumnType::Uuid => Uuid::new_v4().to_string(),
     }
   }
 }
