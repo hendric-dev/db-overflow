@@ -3,7 +3,7 @@ mod column;
 use column::Column;
 use serde::Deserialize;
 use sqlx::postgres::{PgConnection, PgCopyIn};
-use std::env;
+use std::{env, fs};
 
 #[derive(Deserialize, Debug)]
 pub struct Schema {
@@ -12,6 +12,11 @@ pub struct Schema {
 }
 
 impl Schema {
+  pub fn from_file(file: &str) -> Result<Self, serde_json::Error> {
+    let data = fs::read_to_string(&file).expect(&format!("Failed to read schema file: {file}"));
+    serde_json::from_str::<Self>(&data)
+  }
+
   pub async fn generate(&self, stream: &mut PgCopyIn<&mut PgConnection>, quantity: i32) -> Result<(), sqlx::Error> {
     let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
 

@@ -3,15 +3,14 @@ mod schema;
 
 use dotenvy::dotenv;
 use schema::Schema;
-use std::{env, fs};
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
   dotenv().ok();
 
   let schema_file = env::var("SCHEMA_FILE").expect("Failed to get SCHEMA_FILE environment variable");
-  let input = fs::read_to_string(&schema_file).expect(&format!("Failed to read {schema_file}"));
-  let schema: Schema = serde_json::from_str(&input).expect(&format!("Failed to parse {schema_file}"));
+  let schema = Schema::from_file(&schema_file).expect(&format!("Failed to parse {schema_file}"));
 
   let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
   let quantity = str::parse::<i32>(&env::var("QUANTITY").expect("Failed to get QUANTITY environment variable"))
