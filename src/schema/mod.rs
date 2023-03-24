@@ -1,11 +1,9 @@
 mod column;
 
-use column::{Column, ColumnType};
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use column::Column;
 use serde::Deserialize;
 use sqlx::postgres::{PgConnection, PgCopyIn};
 use std::env;
-use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
 pub struct Schema {
@@ -26,30 +24,6 @@ impl Schema {
   }
 
   pub fn to_csv(&self, delimiter: &str) -> String {
-    self
-      .columns
-      .iter()
-      .map(|column| {
-        if column.value.is_some() {
-          column.value.clone().unwrap()
-        } else {
-          self.generate_from_kind(column.kind.as_ref().unwrap())
-        }
-      })
-      .collect::<Vec<String>>()
-      .join(delimiter)
-  }
-
-  fn generate_from_kind(&self, kind: &ColumnType) -> String {
-    match kind {
-      ColumnType::Boolean => thread_rng().gen_range(0..=1).to_string(),
-      ColumnType::Character => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
-      ColumnType::Date => String::from("now()"),
-      ColumnType::Integer => i16::abs(thread_rng().gen::<i16>()).to_string(),
-      ColumnType::Jsonb => String::from("{}"),
-      ColumnType::Text => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
-      ColumnType::Timestamp => String::from("now()"),
-      ColumnType::Uuid => Uuid::new_v4().to_string(),
-    }
+    self.columns.iter().map(|column| column.to_value()).collect::<Vec<String>>().join(delimiter)
   }
 }
