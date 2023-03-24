@@ -1,9 +1,10 @@
 mod column;
 
+use crate::ENV;
 use column::Column;
 use serde::Deserialize;
 use sqlx::postgres::{PgConnection, PgCopyIn};
-use std::{env, fs};
+use std::fs;
 
 #[derive(Deserialize, Debug)]
 pub struct Schema {
@@ -18,10 +19,8 @@ impl Schema {
   }
 
   pub async fn generate(&self, stream: &mut PgCopyIn<&mut PgConnection>, quantity: i32) -> Result<(), sqlx::Error> {
-    let delimiter = env::var("DELIMITER").expect("Failed to get DELIMITER environment variable");
-
     for _ in 1..=quantity {
-      stream.send(self.to_csv(&delimiter).as_bytes()).await?;
+      stream.send(self.to_csv(&ENV.delimiter).as_bytes()).await?;
       stream.send("\n".as_bytes()).await?;
     }
 
