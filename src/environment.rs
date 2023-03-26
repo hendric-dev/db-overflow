@@ -9,7 +9,7 @@ pub static ENV: Lazy<Environment> = Lazy::new(|| Environment {
   db_password: get("DB_PASSWORD"),
   delimiter: get("DELIMITER"),
   quantity: as_int("QUANTITY"),
-  schema_file: get("SCHEMA_FILE"),
+  table: get("TABLE"),
 });
 
 pub struct Environment {
@@ -20,7 +20,7 @@ pub struct Environment {
   pub db_password: String,
   pub delimiter: String,
   pub quantity: i32,
-  pub schema_file: String,
+  pub table: String,
 }
 
 fn as_int(key: &str) -> i32 {

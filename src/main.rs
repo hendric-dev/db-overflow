@@ -1,22 +1,21 @@
 mod database;
 mod environment;
-mod schema;
 
+use database::Table;
 use dotenvy::dotenv;
 pub use environment::ENV;
-use schema::Schema;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
   dotenv().ok();
 
-  let schema = Schema::from_file(&ENV.schema_file).expect(&format!("Failed to parse {}", ENV.schema_file));
+  let mut connection = database::connection::establish().await?;
+  let table = Table::discover(&ENV.table, &mut connection).await;
 
-  let mut connection = database::connect().await?;
-  let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{}', NULL 'NULL')", schema.table, ENV.delimiter);
+  let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{}', NULL 'NULL')", table.name, ENV.delimiter);
   let mut stream = connection.copy_in_raw(&statement).await?;
 
-  schema.generate(&mut stream, ENV.quantity).await?;
+  table.generate(&mut stream, ENV.quantity).await?;
   stream.finish().await?;
 
   Ok(())
