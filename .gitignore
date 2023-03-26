@@ -2,7 +2,7 @@
 .devcontainer
 .idea
 .vscode
-database
+database-setup
 target
 
 # Files
