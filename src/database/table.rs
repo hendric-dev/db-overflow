@@ -1,5 +1,5 @@
 use super::Columns;
-use crate::ENV;
+use crate::cli;
 use sqlx::postgres::{PgConnection, PgCopyIn};
 
 #[derive(Debug)]
@@ -20,7 +20,7 @@ impl Table {
 
   pub async fn generate(&self, stream: &mut PgCopyIn<&mut PgConnection>, quantity: i32) -> Result<(), sqlx::Error> {
     for _ in 1..=quantity {
-      stream.send(self.to_csv(&ENV.delimiter).as_bytes()).await?;
+      stream.send(self.to_csv(&cli::ARGS.delimiter).as_bytes()).await?;
       stream.send("\n".as_bytes()).await?;
     }
 
