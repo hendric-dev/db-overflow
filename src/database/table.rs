@@ -1,6 +1,7 @@
 use super::Columns;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::{PgConnection, PgCopyIn};
+use std::fs;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Table {
@@ -9,6 +10,11 @@ pub struct Table {
 }
 
 impl Table {
+  pub fn from_file(path: &str) -> Self {
+    let file = fs::read_to_string(path).expect(&format!("Failed to load config file {path}"));
+    serde_json::from_str(&file).expect(&format!("Failed to parse config {path}"))
+  }
+
   pub async fn discover(name: &str, connection: &mut PgConnection) -> Self {
     Self {
       name: String::from(name),

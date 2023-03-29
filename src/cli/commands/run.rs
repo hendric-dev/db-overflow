@@ -4,6 +4,12 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(about = "Generate data and fill your DB table")]
 pub struct Run {
+  #[arg(env = "SCHEMA_FILE")]
+  #[arg(help = "Optional path to a table schema file to customize data generation")]
+  #[arg(long)]
+  #[arg(short)]
+  config: Option<String>,
+
   #[arg(env = "DB_HOST")]
   #[arg(help = "Database IP address of domain")]
   #[arg(long)]
@@ -52,7 +58,11 @@ impl Run {
     let mut connection =
       database::connection::establish(&self.db_name, &self.db_host, &self.db_port, &self.db_user, &self.db_password)
         .await?;
-    let table = Table::discover(&self.table, &mut connection).await;
+
+    let table: Table = match &self.config {
+      Some(path) => Table::from_file(&path),
+      None => Table::discover(&self.table, &mut connection).await,
+    };
 
     let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{}', NULL 'NULL')", table.name, self.delimiter);
     let mut stream = connection.copy_in_raw(&statement).await?;
