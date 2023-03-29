@@ -186,7 +186,6 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "dotenvy",
- "once_cell",
  "rand",
  "sqlx",
  "strum",

@@ -1,12 +1,13 @@
 mod cli;
 mod database;
 
-use cli::CLI;
+use clap::Parser;
+use cli::Cli;
 use dotenvy::dotenv;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
   dotenv().ok();
-  CLI.run().await?;
+  Cli::parse().run().await?;
   Ok(())
 }

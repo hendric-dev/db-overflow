@@ -1,14 +1,39 @@
-use crate::{database, database::Table, CLI};
+use crate::{cli::GlobalArgs, database, database::Table};
+use clap::Parser;
 
-pub async fn execute(delimiter: &str, quantity: i32) -> Result<(), sqlx::Error> {
-  let mut connection = database::connection::establish().await?;
-  let table = Table::discover(&CLI.table, &mut connection).await;
+#[derive(Debug, Parser)]
+#[command(about = "Generate data and fill your DB table")]
+pub struct Run {
+  #[arg(env = "DELIMITER")]
+  #[arg(help = "Delimiter used to separate the data values")]
+  #[arg(long)]
+  delimiter: String,
 
-  let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{}', NULL 'NULL')", table.name, delimiter);
-  let mut stream = connection.copy_in_raw(&statement).await?;
+  #[arg(env = "QUANTITY")]
+  #[arg(help = "How many records to insert")]
+  #[arg(long)]
+  #[arg(short)]
+  quantity: i32,
+}
 
-  table.generate(&mut stream, delimiter, quantity).await?;
-  stream.finish().await?;
+impl Run {
+  pub async fn execute(&self, global_args: &GlobalArgs) -> Result<(), sqlx::Error> {
+    let mut connection = database::connection::establish(
+      &global_args.db_name,
+      &global_args.db_host,
+      &global_args.db_port,
+      &global_args.db_user,
+      &global_args.db_password,
+    )
+    .await?;
+    let table = Table::discover(&global_args.table, &mut connection).await;
 
-  Ok(())
+    let statement = format!("COPY {} FROM STDIN WITH (DELIMITER '{}', NULL 'NULL')", table.name, self.delimiter);
+    let mut stream = connection.copy_in_raw(&statement).await?;
+
+    table.generate(&mut stream, &self.delimiter, self.quantity).await?;
+    stream.finish().await?;
+
+    Ok(())
+  }
 }
