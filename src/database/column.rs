@@ -1,4 +1,5 @@
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use serde::{Deserialize, Serialize};
 use sqlx::{
   postgres::{PgConnection, PgRow},
   query, Row,
@@ -7,7 +8,7 @@ use std::str::FromStr;
 use strum_macros::EnumString;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Columns(pub Vec<Column>);
 
 impl Columns {
@@ -29,13 +30,13 @@ impl Columns {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Column {
   pub name: String,
   pub data_type: DataType,
 }
 
-#[derive(Debug, EnumString)]
+#[derive(Debug, Deserialize, EnumString, Serialize)]
 #[strum(ascii_case_insensitive)]
 pub enum DataType {
   #[strum(serialize = "bool")]

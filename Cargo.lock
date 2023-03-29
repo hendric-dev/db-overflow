@@ -187,6 +187,8 @@ dependencies = [
  "clap",
  "dotenvy",
  "rand",
+ "serde",
+ "serde_json",
  "sqlx",
  "strum",
  "strum_macros",

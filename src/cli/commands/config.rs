@@ -1,4 +1,6 @@
+use crate::{database, database::Table};
 use clap::Parser;
+use std::{fs, io};
 
 #[derive(Debug, Parser)]
 #[command(about = "Creates a config file from a DB table for more fine grained customizations")]
@@ -43,6 +45,20 @@ pub struct Config {
 
 impl Config {
   pub async fn execute(&self) -> Result<(), sqlx::Error> {
+    let mut connection =
+      database::connection::establish(&self.db_name, &self.db_host, &self.db_port, &self.db_user, &self.db_password)
+        .await?;
+    let table = Table::discover(&self.table, &mut connection).await;
+
+    self.write(&table).expect(&format!("Failed to write table schema for {}", table.name));
+
     Ok(())
+  }
+
+  fn write(&self, table: &Table) -> Result<(), io::Error> {
+    fs::write(
+      &self.output,
+      serde_json::to_string_pretty(table).expect(&format!("Failed to serialize the table: {}", table.name)),
+    )
   }
 }

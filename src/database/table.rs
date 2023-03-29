@@ -1,7 +1,8 @@
 use super::Columns;
+use serde::{Deserialize, Serialize};
 use sqlx::postgres::{PgConnection, PgCopyIn};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Table {
   pub name: String,
   pub columns: Columns,
