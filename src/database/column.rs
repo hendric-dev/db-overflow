@@ -1,4 +1,5 @@
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use serde::{Deserialize, Serialize};
 use sqlx::{
   postgres::{PgConnection, PgRow},
   query, Row,
@@ -7,7 +8,7 @@ use std::str::FromStr;
 use strum_macros::EnumString;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Columns(pub Vec<Column>);
 
 impl Columns {
@@ -20,6 +21,7 @@ impl Columns {
       Column {
         name: row.get("name"),
         data_type: DataType::from_str(&row.get::<String, &str>("data_type")).expect("Failed to convert column type to DataType"),
+        value: None,
       }
     })
     .fetch_all(connection)
@@ -29,13 +31,15 @@ impl Columns {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Column {
   pub name: String,
   pub data_type: DataType,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub value: Option<String>,
 }
 
-#[derive(Debug, EnumString)]
+#[derive(Debug, Deserialize, EnumString, Serialize)]
 #[strum(ascii_case_insensitive)]
 pub enum DataType {
   #[strum(serialize = "bool")]
@@ -52,15 +56,22 @@ pub enum DataType {
 }
 
 impl Column {
-  pub fn generate(&self) -> String {
+  pub fn to_csv(&self) -> String {
+    match self.value.as_ref() {
+      Some(value) => value.to_owned(),
+      None => self.generate(),
+    }
+  }
+
+  fn generate(&self) -> String {
     match self.data_type {
       DataType::Boolean => thread_rng().gen_range(0..=1).to_string(),
-      DataType::Character => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
-      DataType::Date => String::from("now()"),
-      DataType::Integer => i16::abs(thread_rng().gen::<i16>()).to_string(),
-      DataType::Jsonb => String::from("{}"),
-      DataType::Text => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect::<String>(),
-      DataType::Timestamp => String::from("now()"),
+      DataType::Character => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect(),
+      DataType::Date => "now()".to_owned(),
+      DataType::Integer => thread_rng().gen_range(0..i16::MAX).to_string(),
+      DataType::Jsonb => "{}".to_owned(),
+      DataType::Text => thread_rng().sample_iter(&Alphanumeric).take(10).map(char::from).collect(),
+      DataType::Timestamp => "now()".to_owned(),
       DataType::Uuid => Uuid::new_v4().to_string(),
     }
   }

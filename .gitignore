@@ -7,3 +7,4 @@ target
 
 # Files
 **/*.rs.bk
+table.schema.json
