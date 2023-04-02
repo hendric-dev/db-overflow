@@ -1,0 +1,16 @@
+VERSION 0.6
+
+FROM node:19-slim
+WORKDIR /documentation
+
+deps:
+  RUN npm install --location=global bun
+  COPY bun.lockb package.json .
+  RUN bun install
+  SAVE ARTIFACT node_modules AS LOCAL node_modules
+
+build:
+  FROM +deps
+  COPY . .
+  RUN bun run build
+  SAVE ARTIFACT docs/.vitepress/dist /dist AS LOCAL ./dist
