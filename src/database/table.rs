@@ -17,7 +17,7 @@ impl Table {
 
   pub async fn discover(name: &str, connection: &mut PgConnection) -> Self {
     Self {
-      name: String::from(name),
+      name: name.to_owned(),
       columns: Columns::fetch(name, connection)
         .await
         .expect(&format!("Failed to fetch column information for table {name}")),
@@ -39,6 +39,6 @@ impl Table {
   }
 
   pub fn to_csv(&self, delimiter: &str) -> String {
-    self.columns.0.iter().map(|column| column.generate()).collect::<Vec<String>>().join(delimiter)
+    self.columns.0.iter().map(|column| column.to_csv()).collect::<Vec<String>>().join(delimiter)
   }
 }
