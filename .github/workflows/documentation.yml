@@ -1,0 +1,36 @@
+name: 📚 Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'documentation/**/*'
+
+permissions:
+  contents: write
+
+jobs:
+  documentation:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    env:
+      FORCE_COLOR: 'true'
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 🌎 Install Earthly
+        run: |
+          sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.7.2/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'
+          earthly --version
+
+      - name: 🔧 Build
+        working-directory: ./documentation
+        run: |
+          earthly +build
+
+      - name: 🚀 Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: documentation/dist
