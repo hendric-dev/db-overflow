@@ -1,4 +1,5 @@
 use super::Columns;
+use crate::progress_bar::ProgressBar;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::{PgConnection, PgCopyIn};
 use std::fs;
@@ -30,11 +31,16 @@ impl Table {
     delimiter: &str,
     quantity: i32,
   ) -> Result<(), sqlx::Error> {
-    for _ in 1..=quantity {
-      stream.send(self.to_csv(delimiter).as_bytes()).await?;
-      stream.send("\n".as_bytes()).await?;
+    let progress_bar = ProgressBar::new(quantity);
+
+    for index in 1..=quantity {
+      stream.send(format!("{}\n", self.to_csv(delimiter)).as_bytes()).await?;
+      if index % 1000 == 0 {
+        progress_bar.increment_by(1000);
+      }
     }
 
+    progress_bar.finish();
     Ok(())
   }
 
