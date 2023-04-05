@@ -200,6 +200,7 @@ dependencies = [
  "clap",
  "dotenvy",
  "indicatif",
+ "itertools",
  "rand",
  "serde",
  "serde_json",
