@@ -1,5 +1,6 @@
 mod cli;
 mod database;
+mod progress_bar;
 
 use clap::Parser;
 use cli::Cli;

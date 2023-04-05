@@ -1,4 +1,6 @@
 use super::Columns;
+use crate::progress_bar::ProgressBar;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::{PgConnection, PgCopyIn};
 use std::fs;
@@ -30,11 +32,18 @@ impl Table {
     delimiter: &str,
     quantity: i32,
   ) -> Result<(), sqlx::Error> {
-    for _ in 1..=quantity {
-      stream.send(self.to_csv(delimiter).as_bytes()).await?;
-      stream.send("\n".as_bytes()).await?;
+    let progress_bar = ProgressBar::new(quantity);
+    let chunk_size = usize::try_from(quantity / 100).expect("Unable to convert progress bar step to usize");
+    let step = u64::try_from(chunk_size).expect("Failed to convert chunk size to u64");
+
+    for chunk in &(1..=quantity).chunks(chunk_size) {
+      for _ in chunk {
+        stream.send(format!("{}\n", self.to_csv(delimiter)).as_bytes()).await?;
+      }
+      progress_bar.increment_by(step);
     }
 
+    progress_bar.finish();
     Ok(())
   }
 
