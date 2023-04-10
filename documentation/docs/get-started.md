@@ -8,7 +8,21 @@ DB Overflow is designed as a command line interface. It's as easy as downloading
 
 ## Download
 
-TBA
+Binaries can be downloaded from the [Releases](https://github.com/hendric-dev/db-overflow/releases) page.
+
+An example using curl:
+
+```sh
+platform=linux-amd64
+version=0.1.0
+curl -L https://github.com/hendric-dev/db-overflow/releases/download/$version/db-overflow-$platform -o db-overflow
+```
+
+Make it executable and it is ready to be used:
+
+```sh
+chmod a+x db-overflow
+```
 
 ## Usage
 
