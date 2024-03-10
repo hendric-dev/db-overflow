@@ -1,6 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:base",
+    "schedule:daily"
+  ],
+  "automerge": false,
+  "baseBranches": ["main"],
+  "commitMessagePrefix": "[Renovate]",
+  "labels": ["dependency update"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "pin", "digest"],
+      "groupName": "Minor Versions",
+      "groupSlug": "minor-versions"
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "groupName": "Patch Versions",
+      "groupSlug": "patch-versions",
+      "automerge": true
+    }
   ]
 }
