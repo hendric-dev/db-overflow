@@ -1,0 +1,21 @@
+name: 🔧 Build
+
+on: [merge_group, pull_request, push]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 🪛 Setup Cargo
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: 🔧 Build
+        run: |
+          cargo build
