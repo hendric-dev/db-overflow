@@ -1,6 +1,11 @@
 name: 🔧 Build
 
-on: [merge_group, pull_request, push]
+on:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
