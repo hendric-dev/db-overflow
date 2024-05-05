@@ -2,6 +2,7 @@
   "name": "@db-overflow/documentation",
   "version": "0.1.0",
   "license": "GPLV3",
+  "type": "module",
   "scripts": {
     "build": "vitepress build docs",
     "dev": "vitepress dev docs",
